@@ -371,6 +371,7 @@ namespace replset {
 
     /* tail an oplog.  ok to return, will be re-called. */
     void SyncTail::oplogApplication() {
+    	time_t currTime=0, lastOpApplyPauseCheckTime=0;
         while( 1 ) {
             OpQueue ops;
 
@@ -441,6 +442,13 @@ namespace replset {
             // For pausing replication in tests
             while (MONGO_FAIL_POINT(rsSyncApplyStop)) {
                 sleepmillis(0);
+            }
+
+            // Handle pause of secondary oplog application
+            currTime = time(0);
+            if(currTime - lastOpApplyPauseCheckTime > 2/*To prevent check "local.rspause" too frequent*/){
+            	handleSecondaryPause();
+            	lastOpApplyPauseCheckTime = currTime;
             }
 
             const BSONObj& lastOp = ops.getDeque().back();
@@ -540,6 +548,19 @@ namespace replset {
 
         // Update write concern on primary
         BackgroundSync::notify();
+    }
+
+    void SyncTail::handleSecondaryPause(){
+    	time_t startSleepTime = 0;
+    	// Sleep until getSlavePauseStatus() return FALSE /*NOT-PAUSED STATUS*/
+    	while( theReplSet->isSecondary() && theReplSet->getSecondaryPauseStatus() ) { // Replication role can be changed, so we have to check isSecondary()
+    		if(startSleepTime==0){
+    			startSleepTime = time(0);
+    		}
+    		sleepsecs(3);
+    	}
+
+    	log() << "SyncTail::handleSecondaryPause() -> Replication thread woken up, slept " << (time(0) - startSleepTime) << " seconds" << endl;
     }
 
     void SyncTail::handleSlaveDelay(const BSONObj& lastOp) {

@@ -560,6 +560,8 @@ namespace mongo {
         void syncThread();
         const OpTime lastOtherOpTime() const;
 
+        bool getSecondaryPauseStatus();
+
         /**
          * When a member reaches its minValid optime it is in a consistent state.  Thus, minValid is
          * set as the last step in initial sync.  At the beginning of initial sync, _initialSyncFlag

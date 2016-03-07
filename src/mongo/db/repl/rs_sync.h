@@ -123,6 +123,7 @@ namespace replset {
         void fillWriterVectors(const std::deque<BSONObj>& ops, 
                                std::vector< std::vector<BSONObj> >* writerVectors);
         void handleSlaveDelay(const BSONObj& op);
+        void handleSecondaryPause();
         void setOplogVersion(const BSONObj& op);
     };
 

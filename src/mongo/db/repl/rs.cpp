@@ -926,6 +926,33 @@ namespace mongo {
         ghost->associateSlave(rid, memberId);
     }
 
+    /**
+     * Return
+     * 		true : Paused
+     * 		false : Not paused
+     */
+    bool ReplSetImpl::getSecondaryPauseStatus(){
+    	DBDirectClient c;
+    	if(!c.exists( rspause )){
+    		log() << "ReplSetImpl::getSecondaryPauseStatus() -> " << rspause << "collection is not found, creating it" << endl;
+
+    		// Create RsPause("local.rspause") collection
+    		Lock::GlobalWrite lk;
+    		c.createCollection(rspause);
+    	}
+
+        Lock::DBRead lk(rspause);
+        BSONObj resultObject;
+        bool hasResult = Helpers::findOne(rspause, BSON("_id" << "rs"), resultObject, false/*requiredIndex*/);
+        if(hasResult){
+    		if(resultObject["is_pause"].isBoolean()){
+    			return resultObject["is_pause"].boolean();
+    		}
+    	}
+
+    	return false/*Not paused status*/;
+    }
+
     class ReplIndexPrefetch : public ServerParameter {
     public:
         ReplIndexPrefetch()
