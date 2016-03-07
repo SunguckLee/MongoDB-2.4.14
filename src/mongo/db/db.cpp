@@ -616,6 +616,7 @@ namespace mongo {
         show_warnings();
         log() << mongodVersion() << endl;
         printGitVersion();
+        log() << "extra feature : replication pause for Kakao corp." << endl;
         printSysInfo();
         printAllocator();
         printCommandLineOpts();
