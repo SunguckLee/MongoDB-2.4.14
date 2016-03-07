@@ -942,13 +942,12 @@ namespace mongo {
     	}
 
         Lock::DBRead lk(rspause);
-        BSONObj resultObject;
-        bool hasResult = Helpers::findOne(rspause, BSON("_id" << "rs"), resultObject, false/*requiredIndex*/);
-        if(hasResult){
-    		if(resultObject["is_pause"].isBoolean()){
-    			return resultObject["is_pause"].boolean();
+        BSONObj res = c.findOne(rspause, BSON("_id" << "rs"));
+        if ( !res.isEmpty() ) {
+    		if(res["is_pause"].isBoolean()){
+    			return res["is_pause"].boolean();
     		}
-    	}
+        }
 
     	return false/*Not paused status*/;
     }

@@ -560,7 +560,9 @@ namespace replset {
     		sleepsecs(3);
     	}
 
-    	log() << "SyncTail::handleSecondaryPause() -> Replication thread woken up, slept " << (time(0) - startSleepTime) << " seconds" << endl;
+    	if(startSleepTime>0){
+    		log() << "SyncTail::handleSecondaryPause() -> Replication thread woken up, slept " << (time(0) - startSleepTime) << " seconds" << endl;
+    	}
     }
 
     void SyncTail::handleSlaveDelay(const BSONObj& lastOp) {
