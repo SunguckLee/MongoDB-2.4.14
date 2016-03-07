@@ -939,6 +939,7 @@ namespace mongo {
     		// Create RsPause("local.rspause") collection
     		Lock::GlobalWrite lk;
     		c.createCollection(rspause);
+    		c.ensureIndex(rspause, BSON("_id" << 1), true/*Unique*/, "_id_");
     	}
 
         Lock::DBRead lk(rspause);
