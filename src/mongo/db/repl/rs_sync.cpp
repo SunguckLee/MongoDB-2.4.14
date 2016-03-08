@@ -556,6 +556,7 @@ namespace replset {
     	while( theReplSet->isSecondary() && theReplSet->getSecondaryPauseStatus() ) { // Replication role can be changed, so we have to check isSecondary()
     		if(startSleepTime==0){
     			startSleepTime = time(0);
+    			log() << "SyncTail::handleSecondaryPause() -> Replication pause requested" << endl;
     		}
     		sleepsecs(3);
     	}
